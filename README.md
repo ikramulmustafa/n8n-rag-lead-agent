@@ -26,7 +26,7 @@ Chat Trigger (webhook)
     AI Agent ──── Chat Model (OpenAI)
         │     └── Simple Memory (20-turn window)
         │
-        ├── ikram_information_retriever  →  PGVector store
+        ├── your_information_retriever  →  PGVector store
         │                                    ↑
         │                              OpenAI Embeddings
         │                              (text-embedding-3-small, 1536d)
@@ -112,4 +112,4 @@ Being honest about the current limits:
 - `workflow.json` — importable n8n workflow
 - `system-prompt.md` — full agent instruction set
 
-Credentials are referenced by ID and are not included.
+Credentials and instance-specific identifiers have been removed.
