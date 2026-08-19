@@ -1,0 +1,171 @@
+{
+  "name": "IkramBot - RAG Agent with Lead Capture",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [-1088, -384],
+      "id": "0d1dc3cd-aaf8-497c-ac25-f5c1b3a5d3c5",
+      "name": "When chat message received"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "See system-prompt.md in this repository for the full agent instruction set.",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [-624, -416],
+      "id": "c0cf5b4c-f21b-4691-a9fe-43822aba227b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "options": {
+          "temperature": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-736, -192],
+      "id": "bc322cdf-89b5-41ce-a374-03b6a405e750",
+      "name": "Chat Model"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [-608, -192],
+      "id": "b1f427db-62ec-4ee6-a540-374dfc8c1df8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Retrieve factual passages about Muhammad Ikram Ul Mustafa's professional background, skills, projects and experience. Use this before answering any factual question about him.",
+        "tableName": "ikram_personal_information",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [-352, -192],
+      "id": "0d3a836f-d3b8-4579-b760-17621c863abb",
+      "name": "ikram_information_retriever"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [-272, 16],
+      "id": "5a040fc5-7566-4c68-8fb8-12a0dc83b808",
+      "name": "Embeddings OpenAI"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send a confirmed project lead by email. Only call after the user has explicitly approved sending.",
+        "sendTo": "REDACTED@example.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [-480, -192],
+      "id": "1f69a3b7-7b8f-47ad-a536-dfa8c0fcf641",
+      "name": "send_email"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ikram_information_retriever": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "ikram_information_retriever",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
